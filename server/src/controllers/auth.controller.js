@@ -3,8 +3,6 @@ import { sendVerificationEmail } from '../services/mail.service.js';
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
 
-const isProduction = process.env.NODE_ENV === 'production'
-
 export const register = async (req, res) => { 
 
   const { username, password } = req.body;
@@ -114,10 +112,12 @@ export const login = async (req,res)=>{
   const token = jwt.sign({
     id: user._id,
   }, process.env.JWT_SECRET, { expiresIn: '1d' })
+  const isSecureRequest = req.secure || req.headers["x-forwarded-proto"] === "https"
+
   res.cookie('token', token, {
     httpOnly: true,
-    sameSite: isProduction ? 'none' : 'lax',
-    secure: isProduction,
+    sameSite: isSecureRequest ? 'none' : 'lax',
+    secure: isSecureRequest,
   })
 
   res.status(200).json({

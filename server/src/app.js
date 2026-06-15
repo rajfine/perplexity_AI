@@ -8,8 +8,15 @@ import path from 'path'
 import { fileURLToPath } from "url";
 
 const app = express()
+app.set("trust proxy", 1)
 app.use(express.static('./dist'))
-const allowedOrigins = (process.env.FRONTEND_URL || "http://localhost:5173")
+const allowedOrigins = [
+  process.env.FRONTEND_URL,
+  "http://localhost:5173",
+  "http://127.0.0.1:5173",
+]
+  .filter(Boolean)
+  .join(",")
   .split(",")
   .map((origin) => origin.trim().replace(/\/$/, ""))
   .filter(Boolean)

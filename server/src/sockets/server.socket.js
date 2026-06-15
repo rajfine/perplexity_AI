@@ -3,7 +3,13 @@ import {Server, Socket} from 'socket.io'
 let io;
 
 export const initSocket = (httpServer)=>{
-  const allowedOrigins = (process.env.FRONTEND_URL || "http://localhost:5173")
+  const allowedOrigins = [
+    process.env.FRONTEND_URL,
+    "http://localhost:5173",
+    "http://127.0.0.1:5173",
+  ]
+    .filter(Boolean)
+    .join(",")
     .split(",")
     .map((origin) => origin.trim().replace(/\/$/, ""))
     .filter(Boolean)
