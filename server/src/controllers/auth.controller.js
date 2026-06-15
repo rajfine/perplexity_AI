@@ -58,76 +58,89 @@ export const register = async (req, res) => {
 }
 
 export const login = async (req,res)=>{
-  const password = req.body.password
-  const email = req.body.email?.trim().toLowerCase()
-
-  if (!email || !password) {
-    return res.status(400).json({
-      message: 'Email and password are required',
-      success: false,
-    })
-  }
-
-  const user = await userModel.findOne({email}).select('+password')
-  if(!user){
-    return res.status(404).json({
-      message: 'User not found',
-      success: false,
-      error: 'No user found with this email'
-    })
-  }
-
-  let isPasswordMatch = false
-
   try {
-    isPasswordMatch = await bcrypt.compare(password, user.password)
+    const password = req.body.password
+    const email = req.body.email?.trim().toLowerCase()
+
+    if (!email || !password) {
+      return res.status(400).json({
+        message: 'Email and password are required',
+        success: false,
+      })
+    }
+
+    const user = await userModel.findOne({email}).select('+password')
+    if(!user){
+      return res.status(404).json({
+        message: 'User not found',
+        success: false,
+        error: 'No user found with this email'
+      })
+    }
+
+    let isPasswordMatch = false
+
+    try {
+      isPasswordMatch = await bcrypt.compare(password, user.password)
+    } catch (error) {
+      isPasswordMatch = false
+    }
+
+    // Support legacy accounts that may have been stored without hashing.
+    if (!isPasswordMatch && user.password === password) {
+      isPasswordMatch = true
+      user.password = password
+      await user.save()
+    }
+
+    if (!isPasswordMatch) {
+      return res.status(401).json({
+        message: 'Invalid credentials',
+        success: false,
+        error: 'Incorrect password'
+      })
+    }
+
+    // TEMP BYPASS: Commented out to allow login without email verification
+    // if(!user.verified) {
+    //   return res.status(403).json({
+    //     message: 'Email not verified',
+    //     success: false,
+    //     error: 'Please verify your email before logging in'
+    //   })
+    // }
+
+    if (!process.env.JWT_SECRET) {
+      throw new Error('JWT_SECRET is missing')
+    }
+
+    const token = jwt.sign({
+      id: user._id,
+    }, process.env.JWT_SECRET, { expiresIn: '1d' })
+    const isSecureRequest = req.secure || req.headers["x-forwarded-proto"] === "https"
+
+    res.cookie('token', token, {
+      httpOnly: true,
+      sameSite: isSecureRequest ? 'none' : 'lax',
+      secure: isSecureRequest,
+    })
+
+    res.status(200).json({
+      message: 'Login successful',
+      success: true,
+      user: {
+        username: user.username,
+        email: user.email,
+      }
+    })
   } catch (error) {
-    isPasswordMatch = false
-  }
-
-  // Support legacy accounts that may have been stored without hashing.
-  if (!isPasswordMatch && user.password === password) {
-    isPasswordMatch = true
-    user.password = password
-    await user.save()
-  }
-
-  if (!isPasswordMatch) {
-    return res.status(401).json({
-      message: 'Invalid credentials',
+    console.error('Login error:', error)
+    return res.status(500).json({
+      message: 'Login failed',
       success: false,
-      error: 'Incorrect password'
+      error: process.env.NODE_ENV === 'production' ? 'Internal Server Error' : error.message,
     })
   }
-
-  // TEMP BYPASS: Commented out to allow login without email verification
-  // if(!user.verified) {
-  //   return res.status(403).json({
-  //     message: 'Email not verified',
-  //     success: false,
-  //     error: 'Please verify your email before logging in'
-  //   })
-  // }
-
-  const token = jwt.sign({
-    id: user._id,
-  }, process.env.JWT_SECRET, { expiresIn: '1d' })
-  const isSecureRequest = req.secure || req.headers["x-forwarded-proto"] === "https"
-
-  res.cookie('token', token, {
-    httpOnly: true,
-    sameSite: isSecureRequest ? 'none' : 'lax',
-    secure: isSecureRequest,
-  })
-
-  res.status(200).json({
-    message: 'Login successful',
-    success: true,
-    user: {
-      username: user.username,
-      email: user.email,
-    }
-  })
 }
 
 export const verifyEmail = async (req, res)=>{
