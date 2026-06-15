@@ -1,7 +1,6 @@
-import { generateChatTitle, generateResponse } from "../services/ai.service.js"
+// Dynamically imported below when needed
 import chatModel from '../models/chat.model.js'
 import messageModel from '../models/message.model.js'
-
 export const sendMessage = async (req, res)=>{
   const {message, chat: chatId} = req.body
   
@@ -9,6 +8,7 @@ export const sendMessage = async (req, res)=>{
   let chat = null
 
   if(!chatId){
+    const { generateChatTitle } = await import("../services/ai.service.js")
     title = await generateChatTitle(message)
     chat = await chatModel.create({
       user: req.user.id,
@@ -26,6 +26,7 @@ export const sendMessage = async (req, res)=>{
   
   const messages = await messageModel.find({ chat: activeChatId }) //.sort({ createdAt: 1 })
   
+  const { generateResponse } = await import("../services/ai.service.js")
   const result = await generateResponse(messages)
 
   const aiMessage = await messageModel.create({

@@ -13,15 +13,16 @@
 			"com.tldraw.instance_presence": 6,
 			"com.tldraw.pointer": 1,
 			"com.tldraw.shape": 4,
-			"com.tldraw.asset.bookmark": 2,
+			"com.tldraw.user": 1,
 			"com.tldraw.asset.image": 6,
 			"com.tldraw.asset.video": 5,
+			"com.tldraw.asset.bookmark": 2,
 			"com.tldraw.shape.group": 0,
 			"com.tldraw.shape.text": 4,
 			"com.tldraw.shape.bookmark": 2,
 			"com.tldraw.shape.draw": 4,
 			"com.tldraw.shape.geo": 11,
-			"com.tldraw.shape.note": 10,
+			"com.tldraw.shape.note": 12,
 			"com.tldraw.shape.line": 5,
 			"com.tldraw.shape.frame": 1,
 			"com.tldraw.shape.arrow": 8,
@@ -254,9 +255,9 @@
 			"typeName": "shape"
 		},
 		{
-			"x": 291.09734809776734,
-			"y": -142.71972192489795,
-			"z": 0.969868930099448,
+			"x": 427.38047779776764,
+			"y": 21.512188653678834,
+			"z": 0.7901209427360625,
 			"meta": {},
 			"id": "camera:page:page",
 			"typeName": "camera"
@@ -406,7 +407,7 @@
 			"editingShapeId": null,
 			"croppingShapeId": null,
 			"selectedShapeIds": [
-				"shape:MZ88tbTMwUX_PYziPwtur"
+				"shape:YgDSRVC760yPCpBJUcWai"
 			],
 			"hoveredShapeId": null,
 			"erasingShapeIds": [],
@@ -681,12 +682,12 @@
 			"followingUserId": null,
 			"opacityForNextShape": 1,
 			"stylesForNextShape": {
-				"tldraw:geo": "rectangle"
+				"tldraw:color": "black"
 			},
 			"brush": null,
 			"scribbles": [],
 			"cursor": {
-				"type": "move",
+				"type": "default",
 				"rotation": 0
 			},
 			"isFocusMode": false,
@@ -696,8 +697,8 @@
 			"screenBounds": {
 				"x": 0,
 				"y": 0,
-				"w": 1178.333251953125,
-				"h": 580.8333129882812
+				"w": 1080,
+				"h": 697
 			},
 			"insets": [
 				false,
@@ -712,11 +713,11 @@
 			"isChatting": false,
 			"highlightedUserIds": [],
 			"isFocused": true,
-			"devicePixelRatio": 2.4000000953674316,
+			"devicePixelRatio": 2,
 			"isCoarsePointer": false,
-			"isHoveringCanvas": true,
+			"isHoveringCanvas": false,
 			"openMenus": [],
-			"isChangingStyle": false,
+			"isChangingStyle": true,
 			"isReadonly": false,
 			"meta": {},
 			"duplicateProps": null,
@@ -905,6 +906,14 @@
 			"parentId": "page:page",
 			"index": "a1kPzLvl",
 			"typeName": "shape"
+		},
+		{
+			"name": "",
+			"color": "#55B467",
+			"imageUrl": "",
+			"meta": {},
+			"id": "user:vhhm0yxG7QJ9VPADbPkQ5",
+			"typeName": "user"
 		}
 	]
 }

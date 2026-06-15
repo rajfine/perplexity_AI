@@ -2,7 +2,7 @@ import { ChatGoogleGenerativeAI } from "@langchain/google-genai";
 import { ChatMistralAI } from "@langchain/mistralai"
 import {HumanMessage, SystemMessage, AIMessage} from '@langchain/core/messages'
 import { tool } from "@langchain/core/tools";
-import { createAgent } from "langchain";
+import { createReactAgent } from "@langchain/langgraph/prebuilt";
 import * as z from 'zod' // description dene ke liye
 import { searchInternet } from "./internet.service.js";
 
@@ -46,10 +46,10 @@ export const generateResponse = async (messages)=>{
     throw new Error("No valid messages found for AI response generation")
   }
 
-  const response = await agent.invoke({messages:formattedMessages})
+  const response = await agentExecutor.invoke({messages:formattedMessages})
   const lastAiMessage = response.messages
-    .filter((msg) => msg._getType?.() === "ai")
-    .at(-1)
+    ? response.messages.filter((msg) => msg._getType?.() === "ai").at(-1)
+    : { content: response.output }
 
   const text = getMessageText(lastAiMessage?.content)
 
@@ -89,17 +89,18 @@ export const searchInternetTool = tool(
   }
 )
 
-const  agent = createAgent({
-  model: geminiModel,
-  tools: [searchInternetTool],
-  systemPrompt: `
+const systemPrompt = `
     You are a helpful assistant with access to a searchInternet tool.
     For any question about today, current date, current day, latest, recent, news, prices, weather, or live information, you MUST call searchInternet before answering.
     Do not say you cannot access real-time information. Use the tool.
     if i ask currwnt date then tell me its important
-  `
+  `;
 
-})
+const agentExecutor = createReactAgent({
+  llm: geminiModel,
+  tools: [searchInternetTool],
+  stateModifier: systemPrompt,
+});
 
 // export const testAi =  () => {
 //   const model = getModel()

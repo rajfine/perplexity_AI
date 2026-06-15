@@ -31,17 +31,21 @@ export const register = async (req, res) => {
     email: user.email,
   }, process.env.JWT_SECRET, { expiresIn: '1d' })
 
-  await sendVerificationEmail({
-    to: user.email,
-    subject: 'welcome to perplexityAi, please verify your email',
-    text: `Hi ${user.username},\n\nThank you for registering at perplexityAi! Please verify your email address by clicking the link below:\n\nhttp://localhost:3000/verify-email?email=${user.email}\n\nBest regards,\nThe perplexityAi Team`,
-    html: `
-      <p>Hi ${user.username},</p>
-      <p>Thank you for registering at perplexityAi! Please verify your email address by clicking the link below:</p>
-      <a href="http://localhost:3000/api/auth/verify-email?token=${emailVerificationToken}">Verify Email</a>
-      <p>Best regards,<br>The perplexityAi Team</p>
-    `
-  })
+  try {
+    await sendVerificationEmail({
+      to: user.email,
+      subject: 'welcome to perplexityAi, please verify your email',
+      text: `Hi ${user.username},\n\nThank you for registering at perplexityAi! Please verify your email address by clicking the link below:\n\nhttp://localhost:3000/verify-email?email=${user.email}\n\nBest regards,\nThe perplexityAi Team`,
+      html: `
+        <p>Hi ${user.username},</p>
+        <p>Thank you for registering at perplexityAi! Please verify your email address by clicking the link below:</p>
+        <a href="http://localhost:3000/api/auth/verify-email?token=${emailVerificationToken}">Verify Email</a>
+        <p>Best regards,<br>The perplexityAi Team</p>
+      `
+    })
+  } catch (error) {
+    console.error("TEMP BYPASS: Failed to send verification email, but continuing registration.", error.message);
+  }
 
   return res.status(201).json({
     message: 'User registered successfully',
@@ -96,13 +100,14 @@ export const login = async (req,res)=>{
     })
   }
 
-  if(!user.verified) {
-    return res.status(403).json({
-      message: 'Email not verified',
-      success: false,
-      error: 'Please verify your email before logging in'
-    })
-  }
+  // TEMP BYPASS: Commented out to allow login without email verification
+  // if(!user.verified) {
+  //   return res.status(403).json({
+  //     message: 'Email not verified',
+  //     success: false,
+  //     error: 'Please verify your email before logging in'
+  //   })
+  // }
 
   const token = jwt.sign({
     id: user._id,
