@@ -4,8 +4,16 @@ import authRouter from './routes/auth.routes.js'
 import morgan from 'morgan'
 import cors from 'cors'
 import chatRouter from './routes/chat.routes.js'
+import path from 'path'
+import { fileURLToPath } from "url";
 
 const app = express()
+app.use(express.static('./dist'))
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+
 
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
@@ -22,5 +30,10 @@ app.use("/api/auth", authRouter)
 
 app.use("/api/chat", chatRouter)
 
+app.use(express.static(path.join(__dirname, "../dist")));
+
+app.get("*name", (req, res) => {
+  res.sendFile(path.join(__dirname, "../dist", "index.html"));
+});
 
 export default app
