@@ -9,6 +9,10 @@ import { fileURLToPath } from "url";
 
 const app = express()
 app.use(express.static('./dist'))
+const allowedOrigins = (process.env.FRONTEND_URL || "http://localhost:5173")
+  .split(",")
+  .map((origin) => origin.trim().replace(/\/$/, ""))
+  .filter(Boolean)
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -21,7 +25,14 @@ app.use(cookieParser())
 app.use(morgan("dev"))
 
 app.use(cors({
-  origin: process.env.FRONTEND_URL || "http://localhost:5173",
+  origin(origin, callback) {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true)
+      return
+    }
+
+    callback(new Error(`Not allowed by CORS: ${origin}`))
+  },
   credentials: true,
   methods: ["GET", "POST", "PUT", "DELETE"],
 }))
